@@ -167,7 +167,7 @@ def driver():
     # robots = test2(mode)
     # robots = test3(mode)
     # robots = test4(mode)
-    robots = test_funcs[args.test](mode)
+    robots = test_funcs[args.test-1](mode)
     for i in range(num_targets):
         all_bids = []
         for robot in robots:
