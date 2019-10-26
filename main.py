@@ -2,10 +2,15 @@ import numpy as np
 from scipy.sparse.csgraph import minimum_spanning_tree as MST
 from scipy.sparse import csr_matrix
 from tqdm import tqdm
-
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument("mode",help="team optimization objective: 'ave','sum' or 'max'")
+parser.add_argument("test",help="which one of 4 test scenarios to run (1,2,3 or 4)",type=int)
+parser.add_argument("--verbose",help="print step by step auction",action="store_true")
+args = parser.parse_args()
 num_robots = 0
 num_targets = 0
-verbose = False
+verbose = args.verbose
 
 printif = print if verbose else lambda *a, **k: None
 
@@ -154,14 +159,16 @@ def test4(mode, epsilon=5):
     robots = [robot(i + 1, targets, np.ones(2) * (-10, -2), mode) for i in range(num_robots)]
     return (robots)
 
+test_funcs = [test1,test2,test3,test4]
 
 def driver():
-    mode = 'ave'
-    # robots = test1(mode)
-    robots = test2(mode)
-    robots = test3(mode)
-    robots = test4(mode)
-    for i in tqdm(range(num_targets)):
+    mode = args.mode
+    # # robots = test1(mode)
+    # robots = test2(mode)
+    # robots = test3(mode)
+    # robots = test4(mode)
+    robots = test_funcs[args.test](mode)
+    for i in range(num_targets):
         all_bids = []
         for robot in robots:
             all_bids.append(robot.bid())
@@ -173,9 +180,12 @@ def driver():
     allocation = robots[0].allocated
     targets = robots[0].targets
     costs = robots[0].costs
-    print("Robot Assigned", "Targets", "Costs")
+    print("Robot Assigned", "-Target", "-Winning Bid")
     for i, j, k in zip(allocation, targets, costs):
         print(int(i), j, k)
+    print("path for each robot")
+    for i in robots:
+        print("Robot {0}:".format(i.id),i.my_tasks)
 
 
 driver()
